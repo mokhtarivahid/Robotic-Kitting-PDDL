@@ -1,0 +1,15 @@
+# Ignore the following files and directories
+__pycache__/
+*.pyc 
+*.out
+*.dot
+*.json
+*.gv
+*.pdf
+*.csv
+*.sas
+.~*.csv#
+output
+output.sas
+all.groups
+variables.groups

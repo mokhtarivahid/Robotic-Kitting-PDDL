@@ -1,0 +1,16 @@
+#! /bin/bash
+
+ulimit -t 1800
+ulimit -v 4000000
+
+export PATH=$PATH:./search
+
+# if [ $# != 3 ] ; then
+if [[ $1 == "" || $1 == "-h" || $1 == "--help" ]] ; then
+    echo "Usage: plan <-a|--all> <domainFile> <problemFile> <solutionFile>"
+    echo "       -a|--all: optimize for the best solution"
+elif [[ $1 == "-a" || $1 == "--all" ]] ; then
+    $(dirname $0)/plan.py "y+Y+a+e+r+O+1+C+1+b+v" $2 $3 $4
+else
+    $(dirname $0)/plan.py "y+Y+v+e+r+O+1+C+1+b+v" $1 $2 $3
+fi
