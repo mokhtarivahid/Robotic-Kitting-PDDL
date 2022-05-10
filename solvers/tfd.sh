@@ -13,5 +13,5 @@ problem=$(realpath $2)
 
 cd $(dirname $0)/tfd-src-0.4/downward
 
-./plan.py "y+Y+a+e+r+O+1+C+1+b+v" $domain $problem "\tmp\plan.txt"
+./plan.py "y+Y+a+e+r+O+1+C+1+b+v" $domain $problem "/tmp/plan.txt"
 
