@@ -53,6 +53,10 @@
     (= (has-object Part_Storage Cover) 100)
     (= (has-object Part_Storage Top) 100)
 
+    ; processing time for each kit type
+    (= (processing-time KitA) 30)
+    (= (processing-time KitB) 20)
+
     ; delivery time for each kit
     (= (deliver-time Workcell1) 23.2)
     (= (deliver-time Workcell2) 5.33)
