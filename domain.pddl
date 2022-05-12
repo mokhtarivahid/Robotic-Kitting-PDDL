@@ -41,6 +41,7 @@
         (drive-time-pm ?r - mobile)
         (collect-time ?g - graspable)
         (deliver-time ?w - workcell)
+        (processing-time ?k - kit)
         (distance ?from ?to - location)
         (location-size ?l - location)
         (has-object ?l - location ?o - graspable)

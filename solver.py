@@ -6,7 +6,7 @@ from collections import OrderedDict
 import json
 
 args_profiles = {
-    'tfd'       : { 0 : 'y+Y+a+e+r+O+1+C+1+b+v', 
+    'tfd'       : { 0 : 'y+Y+a+e+r+O+1+C+1+b+v+g', 
                     1 : 'y+Y+e+r+O+1+C+1+b+v' },
     'optic-clp' : { 0 : '',
                     1 : '-c -N',
@@ -75,6 +75,7 @@ def Plan(planners, domain, problem, wall_time, pwd, verbose=0):
         printed_plans = set()
 
         # wait until one process completes and returns or the computation time is over
+        # while  time.time() - t0 < wall_time:
         while returned_planner.empty() and time.time() - t0 < wall_time:
             if verbose == 1:
                 for cost, (planner, plan) in collected_plans.items():
@@ -82,7 +83,7 @@ def Plan(planners, domain, problem, wall_time, pwd, verbose=0):
                         printed_plans.add(cost)
                         print("\n; A plan found by '{}'".format(planner))
                         print_classical_plan(plan, cost)
-            pass
+
 
         # kill running planners (subprocesses) if they are running
         kill_jobs(pwd, planners)
@@ -182,7 +183,7 @@ def call_optic_clp(collected_plans, domain, problem, args='-b -N', pwd='/tmp', v
             # a plan is found 
             if 'All goal deadlines now no later than' in to_str(line):
                 # extract plan cost
-                cost = re.search(b'All goal deadlines now no later than (.*)', line).group(1).decode()
+                cost = float(re.search(b'All goal deadlines now no later than (.*)', line).group(1).decode())
 
                 ## refine the output screen and build a plan of actions' signatures ##
                 # extract plan from '; Time' to the end of the string in shell
@@ -227,7 +228,7 @@ def call_tfd(collected_plans, domain, problem, args='y+Y+a+e+r+O+1+C+1+b+v', pwd
     os.chdir('solvers/tfd-src-0.4/downward')
 
     # create the command
-    cmd = 'timeout 1800 python plan.py {} {} {} /tmp/plan.txt & echo $! >> {}/tfd-pid.txt'.format(args, cur_dir+'/'+domain, cur_dir+'/'+problem, pwd)
+    cmd = "timeout 1800 python2 plan.py {} '{}' '{}' /tmp/plan.txt & echo $! >> {}/tfd-pid.txt".format(args, cur_dir+'/'+domain, cur_dir+'/'+problem, pwd)
 
     ## call command ##
     with open('/tmp/test.log', 'wb') as f:
@@ -245,7 +246,7 @@ def call_tfd(collected_plans, domain, problem, args='y+Y+a+e+r+O+1+C+1+b+v', pwd
             # a plan is found 
             if 'Solution with original makespan' in to_str(line):
                 # extract plan cost
-                cost = re.search(b'makespan (.*) found', line).group(1).decode()
+                cost = float(re.search(b'makespan (.*) found', line).group(1).decode())
 
                 ## refine the output screen and build a plan of actions' signatures ##
                 # extract plan from '; Time' to the end of the string in shell
@@ -299,12 +300,25 @@ def print_classical_plan(plan, cost=None):
 
 ###############################################################################
 ###############################################################################
+## print out a plan in a classical readable format
+def plan_to_file(path, plan, cost=None):
+    '''print out given plan in a readable format'''
+    if plan is None: return
+    with open(path, 'w') as outfile:
+        outfile.write("; Plan Metric: {}\n".format(cost))
+        for step, actions in plan.items():
+            outfile.write(step+' : '+' '.join([str('({}) [{}]\n'.format(' '.join(action),duration)) for action, duration in actions]))
+
+    return
+
+###############################################################################
+###############################################################################
 ## store the plan in a json dictionary
 def plan_to_json(problem, plan, cost=None):
     '''print out given plan in a readable format'''
     if plan is None: return
     plan_dict = OrderedDict()
-    plan_dict['metric'] = float(cost)
+    plan_dict['metric'] = cost
     plan_dict['steps'] = list(plan.keys())
     for step, actions in plan.items():
         plan_dict[float(step)] = list( \
@@ -331,6 +345,10 @@ def parse():
     parser.add_argument('problem', nargs='?', type=str, help='path to a PDDL problem file')
     parser.add_argument("-t", "--time", type=int, nargs='?', const=1, 
         help="limit for the computation time in seconds (default=60)", default=60)
+    parser.add_argument("-p", "--plan",  type=str, help='output plan filename (default=/tmp/plan.txt)', 
+        default="/tmp/plan.txt")
+    parser.add_argument("-j", "--json", help="transform the output plan into a json file", 
+        action="store_true")
     parser.add_argument("-v", "--verbose", default=1, type=int, choices=(0, 1, 2),
         help="increase output verbosity: 0 (minimal), 1 (high-level), 2 (classical planners outputs) (default=1)", )
 
@@ -360,9 +378,14 @@ if __name__ == '__main__':
         print("\n; The best plan found by '%s' in %.2fs" % (plan[0], time.time() - start))
         print_classical_plan(plan[1], plan[2])
 
+        # write out the output plan into a file
+        plan_to_file(path=args.plan, plan=plan[1], cost=plan[2])
+        print("\n; The plan '%s' was generated." % args.plan)
+
         # translate the output plan into a json format
-        plan_json_file = plan_to_json(args.problem, plan[1], plan[2])
-        print("\n; The plan '%s' in json format was generated." % plan_json_file)
+        if args.json:
+            plan_json_file = plan_to_json(problem=args.problem, plan=plan[1], cost=plan[2])
+            print("\n; The plan '%s' in json format was generated." % plan_json_file)
 
     else:
         print("; No plan found in %.2fs" % (time.time() - start))
