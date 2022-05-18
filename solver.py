@@ -249,8 +249,12 @@ def call_tfd(collected_plans, domain, problem, args='y+Y+a+e+r+O+1+C+1+b+v', pwd
                 cost = float(re.search(b'makespan (.*) found', line).group(1).decode())
 
                 ## refine the output screen and build a plan of actions' signatures ##
-                # extract plan from '; Time' to the end of the string in shell
-                shell = shell[shell.find('Found new plan:'):].strip()
+                # extract plan from '; Solution with original makespan' to either 
+                # 'Rescheduled Plan:' or 'Found new plan:' in shell
+                i = shell.find('Rescheduled Plan:')
+                if i < 0: 
+                    i = shell.find('Found new plan:')
+                shell = shell[i:].strip()
 
                 # split shell into a list of actions
                 shell = shell.split('\n')[1:-1]
