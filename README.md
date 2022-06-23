@@ -76,11 +76,11 @@ In the initial state description:
 ```lisp
 (drive-time-pm ?r - mobile) ; to define the speed of the robot
 (collect-time ?g - graspable) ; to define the collection time for an object
-(deliver-time ?w - workcell) ; to define the delivery time of a kit at a workcell
+(deliver-time ?k - kit) ; to define the delivery time of a kit at a workcell
 (distance ?from ?to - location) ; to define the distance between locations
 (location-size ?l - location) ; to define the maximum size of a location for moving robots there
 (has-object ?l - location ?o - graspable) ; to define the number of objects at a location
-(set-part-size ?k - kit ?p - part) ; to define the maximum number of each part in a kit
+(set-part-amount ?k - kit ?p - part) ; to define the maximum number of each part in a kit
 ```
 
 In the goal description:

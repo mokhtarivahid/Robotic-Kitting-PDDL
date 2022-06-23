@@ -33,42 +33,22 @@
         (has_slot_free ?robot - mobile ?slot - slot)
         (has_arm_free ?m - mobile)
         (arm_holding ?o - graspable)
-        (set_fluents)
-        (fluents_set)
     )
 
     (:functions ; define numeric functions here
         (drive-time-pm ?r - mobile)
         (collect-time ?g - graspable)
-        (deliver-time ?w - workcell)
-        (processing-time ?k - kit)
+        (deliver-time ?k - kit)
+        (processing-time ?w - workcell ?k - kit)
         (distance ?from ?to - location)
         (location-size ?l - location)
         (has-object ?l - location ?o - graspable)
         (inserted ?r - mobile ?g - part ?k - kit ?s - slot)
-        (set-part-size ?k - kit ?p - part)
+        (set-part-amount ?k - kit ?p - part)
         (deliver-at ?k - kit ?w - workcell)
     )
 
     ; define actions here
-
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    ;; initialize some fluents
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-    (:durative-action set_fluents
-        :parameters ()
-        :duration (= ?duration 1)
-        :condition (and (at start (set_fluents)))
-        :effect (and 
-            (forall (?w - workcell ?k - kit)
-                (at start (assign (has-object ?w ?k) 0)))
-            (forall (?w2 - workcell ?k2 - kit)
-                (at start (assign (deliver-at ?k2 ?w2) 0)))
-            (at start (not (set_fluents)))
-            (at end (fluents_set))
-        )
-    )
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ;; take an empty kit from a kit storage 
@@ -78,7 +58,6 @@
         :parameters (?m - mobile ?k - kit ?s - slot ?l - location)
         :duration (= ?duration (collect-time ?k))
         :condition (and 
-            (at start (fluents_set))
             (over all (robot_at ?m ?l))
             (at start (has_arm_free ?m))
             (at start (has_slot_free ?m ?s))
@@ -105,7 +84,6 @@
         :parameters (?m - mobile ?k - kit ?s - slot ?l - kit_storage)
         :duration (= ?duration (collect-time ?k))
         :condition (and 
-            (at start (fluents_set))
             (at start (robot_at ?m ?l))
             (at start (has_arm_free ?m))
             (at start (has_kit_at ?m ?k ?s))
@@ -133,7 +111,6 @@
         :parameters (?m - mobile ?p - part ?k - kit ?s - slot ?l - storage)
         :duration (= ?duration (collect-time ?p))
         :condition (and 
-            (at start (fluents_set))
             (over all (robot_at ?m ?l))
             (at start (has_arm_free ?m))
             (at start (has_kit_at ?m ?k ?s))
@@ -155,9 +132,8 @@
 
     (:durative-action deliver
         :parameters (?m - mobile ?k - kit ?s - slot ?w - workcell)
-        :duration (= ?duration (+ (deliver-time ?w) (processing-time ?k)))
+        :duration (= ?duration (+ (deliver-time ?k) (processing-time ?w ?k)))
         :condition (and 
-            (at start (fluents_set))
             (at start (robot_at ?m ?w))
             (at start (has_kit_at ?m ?k ?s))
             (over all 
@@ -165,7 +141,7 @@
                     (= (has-object ?w ?kit) 0)))
             (at start 
                 (forall (?p - part) 
-                    (= (inserted ?m ?p ?k ?s) (set-part-size ?k ?p))))
+                    (= (inserted ?m ?p ?k ?s) (set-part-amount ?k ?p))))
         )
         :effect (and 
             (at start (not (has_kit_at ?m ?k ?s)))
@@ -183,7 +159,6 @@
         :parameters (?m - mobile ?from ?to - location)
         :duration (= ?duration (* (distance ?from ?to) (* 5 (drive-time-pm ?m))))
         :condition (and 
-            (at start (fluents_set))
             (at start (route ?from ?to))
             (at start (robot_at ?m ?from))
             (at start (> (location-size ?to) 0))

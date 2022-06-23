@@ -54,13 +54,16 @@
     (= (has-object Part_Storage Top) 100)
 
     ; processing time for each kit type
-    (= (processing-time KitA) 30)
-    (= (processing-time KitB) 20)
+    (= (processing-time Workcell1 KitA) 30)
+    (= (processing-time Workcell2 KitA) 30)
+    (= (processing-time Workcell3 KitA) 30)
+    (= (processing-time Workcell1 KitB) 20)
+    (= (processing-time Workcell2 KitB) 20)
+    (= (processing-time Workcell3 KitB) 20)
 
     ; delivery time for each kit
-    (= (deliver-time Workcell1) 23.2)
-    (= (deliver-time Workcell2) 5.33)
-    (= (deliver-time Workcell3) 15.1)
+    (= (deliver-time KitA) 23.2)
+    (= (deliver-time KitB) 5.33)
 
     ; collection time for each graspable
     (= (collect-time KitA) 1.5)
@@ -159,31 +162,45 @@
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ; initilize different kits needed at each workcell.
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    (set_fluents)
+    ; has-object for each workcell and kit type
+    (= (has-object Workcell1 KitA) 0)
+    (= (has-object Workcell2 KitA) 0)
+    (= (has-object Workcell3 KitA) 0)
+    (= (has-object Workcell1 KitB) 0)
+    (= (has-object Workcell2 KitB) 0)
+    (= (has-object Workcell3 KitB) 0)
+
+    ; deliver-at for each kit type and workcell
+    (= (deliver-at KitA Workcell1) 0)
+    (= (deliver-at KitA Workcell2) 0)
+    (= (deliver-at KitA Workcell3) 0)
+    (= (deliver-at KitB Workcell1) 0)
+    (= (deliver-at KitB Workcell2) 0)
+    (= (deliver-at KitB Workcell3) 0)
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ;; define the layout of different kit types.
     ;; make sure set a size for all parts for each kit.
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ;; kit_a
-    (= (set-part-size KitA Bearing) 2)
-    (= (set-part-size KitA Bearing_Housing) 1)
-    (= (set-part-size KitA Rotor) 2)
-    (= (set-part-size KitA Rotor_Housing) 1)
-    (= (set-part-size KitA Locknut) 2)
-    (= (set-part-size KitA Screw) 6)
-    (= (set-part-size KitA Cover) 1)
-    (= (set-part-size KitA Top) 1)
+    (= (set-part-amount KitA Bearing) 2)
+    (= (set-part-amount KitA Bearing_Housing) 1)
+    (= (set-part-amount KitA Rotor) 2)
+    (= (set-part-amount KitA Rotor_Housing) 1)
+    (= (set-part-amount KitA Locknut) 2)
+    (= (set-part-amount KitA Screw) 6)
+    (= (set-part-amount KitA Cover) 1)
+    (= (set-part-amount KitA Top) 1)
 
     ;; kit_b
-    (= (set-part-size KitB Bearing) 2)
-    (= (set-part-size KitB Bearing_Housing) 4)
-    (= (set-part-size KitB Rotor) 2)
-    (= (set-part-size KitB Rotor_Housing) 1)
-    (= (set-part-size KitB Locknut) 0)
-    (= (set-part-size KitB Screw) 2)
-    (= (set-part-size KitB Cover) 0)
-    (= (set-part-size KitB Top) 0)
+    (= (set-part-amount KitB Bearing) 2)
+    (= (set-part-amount KitB Bearing_Housing) 4)
+    (= (set-part-amount KitB Rotor) 2)
+    (= (set-part-amount KitB Rotor_Housing) 1)
+    (= (set-part-amount KitB Locknut) 0)
+    (= (set-part-amount KitB Screw) 2)
+    (= (set-part-amount KitB Cover) 0)
+    (= (set-part-amount KitB Top) 0)
 
 )
 
