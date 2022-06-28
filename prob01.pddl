@@ -33,6 +33,7 @@
     (has_arm_free MIR1)
     (has_slot_free MIR1 Left)
     (has_slot_free MIR1 Right)
+    (robot_free MIR1)
 
     ; parts sizes at different storages
     (= (has-object Kit_Storage KitA) 100)

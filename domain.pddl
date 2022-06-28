@@ -33,6 +33,7 @@
         (has_slot_free ?robot - mobile ?slot - slot)
         (has_arm_free ?m - mobile)
         (arm_holding ?o - graspable)
+        (robot_free ?m - mobile)
     )
 
     (:functions ; define numeric functions here
@@ -58,12 +59,15 @@
         :parameters (?m - mobile ?k - kit ?s - slot ?l - location)
         :duration (= ?duration (collect-time ?k))
         :condition (and 
+            (at start (robot_free ?m))
             (over all (robot_at ?m ?l))
             (at start (has_arm_free ?m))
             (at start (has_slot_free ?m ?s))
             (at start (> (has-object ?l ?k) 0))
         )
         :effect (and 
+            (at start (not (robot_free ?m)))
+            (at end (robot_free ?m))
             (at start (arm_holding ?k))
             (at start (not (has_arm_free ?m)))
             (at start (has_kit_at ?m ?k ?s))
@@ -84,6 +88,7 @@
         :parameters (?m - mobile ?k - kit ?s - slot ?l - kit_storage)
         :duration (= ?duration (collect-time ?k))
         :condition (and 
+            (at start (robot_free ?m))
             (at start (robot_at ?m ?l))
             (at start (has_arm_free ?m))
             (at start (has_kit_at ?m ?k ?s))
@@ -93,6 +98,8 @@
                     (= (inserted ?m ?p ?k ?s) 0)))
         )
         :effect (and 
+            (at start (not (robot_free ?m)))
+            (at end (robot_free ?m))
             (at start (arm_holding ?k))
             (at start (not (has_arm_free ?m)))
             (at end (not (arm_holding ?k)))
@@ -111,12 +118,15 @@
         :parameters (?m - mobile ?p - part ?k - kit ?s - slot ?l - storage)
         :duration (= ?duration (collect-time ?p))
         :condition (and 
+            (at start (robot_free ?m))
             (over all (robot_at ?m ?l))
             (at start (has_arm_free ?m))
             (at start (has_kit_at ?m ?k ?s))
             (at start (> (has-object ?l ?p) 0))
         )
         :effect (and 
+            (at start (not (robot_free ?m)))
+            (at end (robot_free ?m))
             (at start (arm_holding ?p))
             (at start (not (has_arm_free ?m)))
             (at end (not (arm_holding ?p)))
@@ -134,6 +144,7 @@
         :parameters (?m - mobile ?k - kit ?s - slot ?w - workcell)
         :duration (= ?duration (+ (deliver-time ?k) (processing-time ?w ?k)))
         :condition (and 
+            (at start (robot_free ?m))
             (at start (robot_at ?m ?w))
             (at start (has_kit_at ?m ?k ?s))
             (over all 
@@ -144,6 +155,8 @@
                     (= (inserted ?m ?p ?k ?s) (set-part-amount ?k ?p))))
         )
         :effect (and 
+            (at start (not (robot_free ?m)))
+            (at end (robot_free ?m))
             (at start (not (has_kit_at ?m ?k ?s)))
             (at start (has_slot_free ?m ?s))
             (at end (increase (has-object ?w ?k) 1))
@@ -157,8 +170,9 @@
 
     (:durative-action drive
         :parameters (?m - mobile ?from ?to - location)
-        :duration (= ?duration (* (distance ?from ?to) (* 5 (drive-time-pm ?m))))
+        :duration (= ?duration (* (distance ?from ?to) (* 1 (drive-time-pm ?m))))
         :condition (and 
+            (at start (robot_free ?m))
             (at start (route ?from ?to))
             (at start (robot_at ?m ?from))
             (at start (> (location-size ?to) 0))

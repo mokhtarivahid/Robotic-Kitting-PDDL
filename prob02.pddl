@@ -33,6 +33,7 @@
     (has_arm_free MIR1)
     (has_slot_free MIR1 Left)
     (has_slot_free MIR1 Right)
+    (robot_free MIR1)
 
     ; robot2
     (= (drive-time-pm MIR2) 1.2)
@@ -40,6 +41,7 @@
     (has_arm_free MIR2)
     (has_slot_free MIR2 Left)
     (has_slot_free MIR2 Right)
+    (robot_free MIR2)
 
     ; parts sizes at different storages
     (= (has-object Kit_Storage KitA) 100)
