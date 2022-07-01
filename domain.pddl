@@ -34,6 +34,8 @@
         (has_arm_free ?m - mobile)
         (arm_holding ?o - graspable)
         (robot_free ?m - mobile)
+        (has_empty_kits ?l - location ?k - kit)
+        (processing ?k - kit ?w - workcell)
     )
 
     (:functions ; define numeric functions here
@@ -64,6 +66,7 @@
             (at start (has_arm_free ?m))
             (at start (has_slot_free ?m ?s))
             (at start (> (has-object ?l ?k) 0))
+            (at start (has_empty_kits ?l ?k))
         )
         :effect (and 
             (at start (not (robot_free ?m)))
@@ -142,7 +145,7 @@
 
     (:durative-action deliver
         :parameters (?m - mobile ?k - kit ?s - slot ?w - workcell)
-        :duration (= ?duration (+ (deliver-time ?k) (processing-time ?w ?k)))
+        :duration (= ?duration (deliver-time ?k))
         :condition (and 
             (at start (robot_free ?m))
             (at start (robot_at ?m ?w))
@@ -155,12 +158,30 @@
                     (= (inserted ?m ?p ?k ?s) (set-part-amount ?k ?p))))
         )
         :effect (and 
+            (at start (not (has_empty_kits ?w ?k)))
             (at start (not (robot_free ?m)))
             (at end (robot_free ?m))
             (at start (not (has_kit_at ?m ?k ?s)))
             (at start (has_slot_free ?m ?s))
+            (at end (processing ?k ?w))
             (at end (increase (has-object ?w ?k) 1))
             (at end (increase (deliver-at ?k ?w) 1))
+        )
+    )
+
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;; processing a kit on a workcell
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+    (:durative-action process
+        :parameters (?k - kit ?w - workcell)
+        :duration (= ?duration (processing-time ?w ?k))
+        :condition (and 
+            (at start (processing ?k ?w))
+        )
+        :effect (and 
+            (at end (not (processing ?k ?w)))
+            (at end (has_empty_kits ?w ?k))
         )
     )
 

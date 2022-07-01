@@ -71,6 +71,10 @@
     (= (collect-time Cover) 1.5)
     (= (collect-time Top) 1.5)
 
+    ; kits types are empty at kit storages
+    (has_empty_kits Kit_Storage KitA)
+    (has_empty_kits Kit_Storage KitB)
+
     ; locations
     (route Kit_Storage Workcell1)
     (route Kit_Storage Workcell2)
